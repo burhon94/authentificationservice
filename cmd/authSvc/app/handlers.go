@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/burhon94/alifMux/pkg/mux"
 	"github.com/burhon94/authentificationservice/core/auth"
 	"github.com/burhon94/authentificationservice/core/utils"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -51,7 +53,9 @@ func (s *Server) handleUserPage() http.HandlerFunc {
 	}
 
 	return func(writer http.ResponseWriter, request *http.Request) {
-		err := tpl.Execute(writer, struct{}{})
+
+		userData, err := s.authClient.GetUserData(request)
+		err = tpl.Execute(writer, userData)
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
@@ -137,14 +141,14 @@ func (s *Server) handleLogin() http.HandlerFunc {
 			return
 		}
 		if token != "" {
-		cookie := &http.Cookie{
-			Name:     "token",
-			Value:    token,
-			HttpOnly: true,
-		}
-		http.SetCookie(writer, cookie)
+			cookie := &http.Cookie{
+				Name:     "token",
+				Value:    token,
+				HttpOnly: true,
+			}
+			http.SetCookie(writer, cookie)
 
-	}
+		}
 		http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
 	}
 }
@@ -163,7 +167,7 @@ func (s *Server) handleLogout() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleRegisterPage()http.HandlerFunc {
+func (s *Server) handleRegisterPage() http.HandlerFunc {
 	var (
 		tpl *template.Template
 		err error
@@ -173,7 +177,7 @@ func (s *Server) handleRegisterPage()http.HandlerFunc {
 		panic(err)
 	}
 
-	return func(writer http.ResponseWriter, request *http.Request){
+	return func(writer http.ResponseWriter, request *http.Request) {
 		err := tpl.Execute(writer, nil)
 		if err != nil {
 			log.Print(err)
@@ -183,7 +187,7 @@ func (s *Server) handleRegisterPage()http.HandlerFunc {
 
 func (s *Server) handleRegister() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		err:= request.ParseForm()
+		err := request.ParseForm()
 		if err != nil {
 			log.Print(err)
 		}
@@ -203,7 +207,6 @@ func (s *Server) handleRegister() http.HandlerFunc {
 			return
 		}
 
-
 		ctx, _ := context.WithTimeout(request.Context(), time.Second)
 		err = s.authClient.Register(ctx, name, login, password)
 		if err != nil {
@@ -213,7 +216,7 @@ func (s *Server) handleRegister() http.HandlerFunc {
 			} else {
 				log.Printf("Error, %v", err)
 			}
-		}else{
+		} else {
 			http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
 		}
 	}
@@ -237,3 +240,79 @@ func (s *Server) handlePageAfterAuth() http.HandlerFunc {
 	}
 }
 
+func (s *Server) handleUserEdit() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		ctx, _ := context.WithTimeout(request.Context(), time.Second*2)
+		value, ok := mux.FromContext(ctx, "id")
+		if !ok {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		nameSurname := request.FormValue("nameSurname")
+		if nameSurname == "" {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		//log.Print(id)
+		//
+		//err = request.ParseMultipartForm(10 * 1024 * 1024)
+		//_, avatarHeader, _ := request.FormFile("image")
+
+		err = s.authClient.UpdateUser(ctx, request, int64(id), nameSurname)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(writer, request, MePage, http.StatusFound)
+	}
+}
+
+func (s *Server) handleUserPassEdit() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		ctx, _ := context.WithTimeout(request.Context(), time.Hour)
+		value, ok := mux.FromContext(ctx, "id")
+		if !ok {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		oldPass := request.FormValue("oldPass")
+		pass := request.FormValue("pass")
+		pass2 := request.FormValue("pass2")
+		if pass != pass2 {
+			_, err := fmt.Fprintf(writer, "new password: %s not mismatched: %s", pass, pass2)
+			if err != nil {
+				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		err = s.authClient.CheckPass(ctx, int64(id), oldPass, request)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		err = s.authClient.UpdatePass(ctx, int64(id), pass, request)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(writer, request, MePage, http.StatusFound)
+	}
+}

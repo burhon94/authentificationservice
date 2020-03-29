@@ -38,4 +38,6 @@ func (s *Server) InitRoutes() {
 	s.router.GET("/me", s.handleUserPage(), authMW, jwtMW, logger.Logger("HTTP"))
 	s.router.POST("/me", s.handleUserPage(), unAuthMW, jwtMW, logger.Logger("HTTP"))
 
+	s.router.POST("/user/{id}", s.handleUserEdit(), authMW, jwtMW, logger.Logger("EDIT_USER"))
+	s.router.POST("/user/{id}/new_pass", s.handleUserPassEdit(), authMW, jwtMW, logger.Logger("USER_PASS_EDIT"))
 }

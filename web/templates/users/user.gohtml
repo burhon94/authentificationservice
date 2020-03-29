@@ -5,36 +5,241 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link media="screen" href="http://portal.tojnet.tj/templates/ftp-portal/style/styles.css" type="text/css" rel="stylesheet">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link media="screen" href="http://portal.tojnet.tj/templates/ftp-portal/style/styles.css" type="text/css"
+          rel="stylesheet">
+
+    <style>
+        #dle-content {
+            background: transparent
+        }
+    </style>
+
+    <script>
+        function ShowOrHideUser() {
+            let elem = document.getElementById('optionsUser');
+            let dispElem = elem.style.display;
+            if (dispElem === 'none') {
+                elem.style.display = 'block';
+            } else {
+                elem.style.display = 'none';
+            }
+        }
+        function ShowOrHideAvatar() {
+            let elem = document.getElementById('optionsAvatar');
+            let dispElem = elem.style.display;
+            if (dispElem === 'none') {
+                elem.style.display = 'block';
+            } else {
+                elem.style.display = 'none';
+            }
+        }
+        function ShowOrHidePass() {
+            let elem = document.getElementById('optionsPass');
+            let dispElem = elem.style.display;
+            if (dispElem === 'none') {
+                elem.style.display = 'block';
+            } else {
+                elem.style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
-<div class="container">
-    <nav class="navbar navbar-light bg-light">
-        <div class="logo lcol">
-            <a href="http://localhost:4444">
-                Media - Портал
-            </a>
-        </div>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div id="navbarContent" class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="http://localhost:4444">Main</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<body>
+<!-- Header -->
+<header>
+    <div id="header_h">
+        <div class="wrapper">
+            <menu id="h_flow" class="rcols">
+                <li class="h_this"><a href="http://localhost:4444"><span>На главную</span></a></li>
+                <div class="h_login">
+                    <div class="login_wrapper">
+
+                        <div id="nav-miniprofile-link">
+                            <li class="h_this"><a href="/logout">Выйти из пользователя - {{.Login}}</a></li>
+                        </div>
+
+                    </div>
+                </div>
+            </menu>
+        </div>
+    </div>
+    <div class="clr"></div>
+    <div id="header_b">
+        <div class="wrapper">
+
+            <div class="logo lcol">
+                <a href="http://localhost:4444">
+                    Media - Портал
+                </a>
+            </div>
+
+            <div class="logo-menu">
+                <ul>
+                    <li><a href="http://localhost:4444/movies" title="Фильмы, Видео"><img alt="Фильмы, Видео"
+                                                                                          src="http://localhost:20000/api/files/images/folder-video.jpg"></a>
+                    </li>
+                    <li><a href="http://localhost:4444/games" title="Игры"><img alt="Игры"
+                                                                                src="http://localhost:20000/api/files/images/folder-games.jpg"></a>
+                    </li>
+                    <li><a href="http://localhost:4444/softs" title="Программы"><img alt="Программы"
+                                                                                     src="http://localhost:20000/api/files/images/folder-torrent.jpg"></a>
+                    </li>
+                    <li><a href="http://localhost:4444/musics" title="Музыка"><img alt="Музыка"
+                                                                                   src="http://localhost:20000/api/files/images/folder-music.jpg"></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="clr"></div>
+        </div>
+    </div>
+</header>
+<!-- Header_End -->
+
+<main id="content_all">
+
+    <div id="wrapper">
+        <div id="content">
+            <aside class="rcols">
+                <div class="content full">
+
+                    <div id="dle-content">
+
+                        <div class="static none">
+                            <div class="static_h">Пользователь: <span>{{.Login}}</span></div>
+                            <div class="static_c">
+                                <div class="userinfo">
+                                    <div class="lcol">
+                                        <div class="avatar"><img src="{{.Avatar}}" alt=""></div>
+                                    </div>
+                                    <div class="rcol">
+                                        <ul>
+                                            <li><span class="grey">Полное имя:</span> <b>{{.NameSurname}}</b></li>
+                                            <li><span class="grey">Группа:</span> {{.Role}}</li>
+                                        </ul>
+                                        <ul class="ussep">
+                                            <li><span class="small" onclick="ShowOrHideUser()" style="cursor: pointer;"> Pедактировать профиль </span></li>
+                                            <li><span class="small" onclick="ShowOrHidePass()" style="cursor: pointer;"> Сменить пароль </span></li>
+                                            <li><span class="small" onclick="ShowOrHideAvatar()" style="cursor: pointer;"> Сменить аватар </span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="clr"></div>
+                                </div>
+                                <div class="clr"></div>
+                            </div>
+                        </div>
+
+                        <form method="post" action="/user/{{.Id}}">
+                            <div id="optionsUser" style="display: none;">
+                                <hr>
+                                <br>
+                                <div class="static none">
+                                    <div class="static_h">Редактирование профиля</div>
+                                    <div class="static_c">
+                                        <table class="tableform">
+                                            <tbody>
+                                            <tr>
+                                                <td class="label"><label for="nameSurname">Ваше Имя:</label></td>
+                                                <td><input type="text" name="nameSurname" value="{{.NameSurname}}"
+                                                           class="f_input" id="nameSurname"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="fieldsubmit">
+                                            <input class="fbutton" type="submit" name="submit" value="Отправить">
+                                        </div>
+                                        <div class="clr"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="doaction" value="adduserinfo">
+                            <input type="hidden" name="id" value="6107">
+                            <input type="hidden" name="dle_allow_hash" value="07908961aee541693508a9f6df3f5f338d80460a">
+                        </form>
+
+                        <form method="post" action="/user/{{.Id}}/new_pass">
+                            <div id="optionsPass" style="display: none;">
+                                <hr>
+                                <br>
+                                <div class="static none">
+                                    <div class="static_h">Смена пароля</div>
+                                    <div class="static_c">
+                                        <table class="tableform">
+                                            <tbody>
+                                            <tr>
+                                                <td class="label"><label for="oldPass">Старый пароль:</label></td>
+                                                <td><input type="password" name="oldPass" class="f_input" id="oldPass">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label"><label for="pass">Новый пароль:</label></td>
+                                                <td><input type="password" name="pass" class="f_input" id="pass"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="label"><label for="pass2">Повторите пароль:</label></td>
+                                                <td><input type="password" name="pass2" class="f_input" id="pass2"></td>
+                                            </tr>
+
+                                            </tbody>
+                                        </table>
+                                        <div class="fieldsubmit">
+                                            <input class="fbutton" type="submit" name="submit" value="Отправить">
+                                        </div>
+                                        <div class="clr"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="doaction" value="adduserinfo">
+                            <input type="hidden" name="id" value="6107">
+                            <input type="hidden" name="dle_allow_hash" value="07908961aee541693508a9f6df3f5f338d80460a">
+                        </form>
+
+                        <form method="post" enctype="multipart/form-data" action="/user/{{.Id}}/new_avatar">
+                            <div id="optionsAvatar" style="display: none;">
+                                <hr>
+                                <br>
+                                <div class="static none">
+                                    <div class="static_h">Сменить аватар</div>
+                                    <div class="static_c">
+                                        <table class="tableform">
+                                            <tbody>
+                                            <tr>
+                                                <td class="label">Аватар:</td>
+                                                <td>Загрузить с комьютера: <input type="file" name="image"
+                                                                                  class="f_input"><br><br>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="fieldsubmit">
+                                            <input class="fbutton" type="submit" name="submit" value="Отправить">
+                                        </div>
+                                        <div class="clr"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+
+                </div>
+                <div class="clr"></div>
+            </aside>
+            <div class="clr"></div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+
 </body>
 </html>
