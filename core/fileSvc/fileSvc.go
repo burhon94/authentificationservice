@@ -55,7 +55,7 @@ func (f *FileClient) UploadFile(ctx context.Context, fileBytes []byte, filename 
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		fmt.Sprintf("%s/api/files/", f.url),
+		fmt.Sprintf("%s/api/files/avatar", f.url),
 		&b,
 	)
 	if err != nil {

@@ -273,7 +273,7 @@ func (s *Server) handleUserEdit() http.HandlerFunc {
 
 func (s *Server) handleUserPassEdit() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		ctx, _ := context.WithTimeout(request.Context(), time.Hour)
+		ctx, _ := context.WithTimeout(request.Context(), time.Second)
 		value, ok := mux.FromContext(ctx, "id")
 		if !ok {
 			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -325,25 +325,7 @@ func (s *Server) handleUserAvatarEdit() http.HandlerFunc {
 			return
 		}
 
-		//_, avatarHeader, _ := request.FormFile("image")
-		//formValue := request.PostFormValue("submit")
-		//if formValue == "" {
-		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		//	return
-		//}
-
-		//multipartForm := request.MultipartForm
-		//file := multipartForm.File["image"]
-		//if file == nil {
-		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		//	return
-		//}
-		//if len(file) != 1 {
-		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		//	return
-		//}
-
-		ctx, _ := context.WithTimeout(request.Context(), time.Hour)
+		ctx, _ := context.WithTimeout(request.Context(), time.Second)
 
 		file, header, err := request.FormFile("image")
 		if err != nil {
