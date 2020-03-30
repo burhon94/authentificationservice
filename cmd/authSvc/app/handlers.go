@@ -8,6 +8,7 @@ import (
 	"github.com/burhon94/authentificationservice/core/auth"
 	"github.com/burhon94/authentificationservice/core/utils"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -261,11 +262,6 @@ func (s *Server) handleUserEdit() http.HandlerFunc {
 			return
 		}
 
-		//log.Print(id)
-		//
-		//err = request.ParseMultipartForm(10 * 1024 * 1024)
-		//_, avatarHeader, _ := request.FormFile("image")
-
 		err = s.authClient.UpdateUser(ctx, request, int64(id), nameSurname)
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -303,6 +299,10 @@ func (s *Server) handleUserPassEdit() http.HandlerFunc {
 
 		err = s.authClient.CheckPass(ctx, int64(id), oldPass, request)
 		if err != nil {
+			if !errors.Is(err, errors.New("wrong password")) {
+				http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			}
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -310,6 +310,80 @@ func (s *Server) handleUserPassEdit() http.HandlerFunc {
 		err = s.authClient.UpdatePass(ctx, int64(id), pass, request)
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(writer, request, MePage, http.StatusFound)
+	}
+}
+
+func (s *Server) handleUserAvatarEdit() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		err := request.ParseMultipartForm(10 * 1024 * 1024 * 1024)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		//_, avatarHeader, _ := request.FormFile("image")
+		//formValue := request.PostFormValue("submit")
+		//if formValue == "" {
+		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		//	return
+		//}
+
+		//multipartForm := request.MultipartForm
+		//file := multipartForm.File["image"]
+		//if file == nil {
+		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		//	return
+		//}
+		//if len(file) != 1 {
+		//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		//	return
+		//}
+
+		ctx, _ := context.WithTimeout(request.Context(), time.Hour)
+
+		file, header, err := request.FormFile("image")
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		defer func() {
+			if file.Close() != nil {
+				http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+		}()
+		bytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		avatarUrl, err := s.fileClient.UploadFile(ctx, bytes, header.Filename)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		value, ok := mux.FromContext(ctx, "id")
+		if !ok {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		err = s.authClient.UpdateAvatar(ctx, id, avatarUrl, request)
+		if err != nil {
+			http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
 

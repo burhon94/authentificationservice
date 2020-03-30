@@ -54,6 +54,11 @@ type userIdPass struct {
 	Pass string `json:"pass"`
 }
 
+type userIdAvatar struct {
+	Id   int64  `json:"id"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
 type ResponseDTO struct {
 	Id          int64    `json:"id"`
 	Login       string   `json:"login"`
@@ -427,6 +432,66 @@ func (c *Client) UpdatePass(ctx context.Context, id int64, NewPass string, formR
 		ctx,
 		http.MethodPost,
 		fmt.Sprintf("%s/api/users/%d/edit/pass", c.url, id),
+		bytes.NewBuffer(bodyReq),
+	)
+	if err != nil {
+		return err
+	}
+
+	requestUpdatePass.Header.Set("Authorization", fmt.Sprintf("Bearer %v", cookie.Value))
+	requestUpdatePass.Header.Set("Content-Type", "application/json")
+	response, err := http.DefaultClient.Do(requestUpdatePass)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			return
+		}
+	}()
+
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	switch response.StatusCode {
+	case 200:
+		return nil
+	case 400:
+		var responseData *ErrorResponse
+		err = json.Unmarshal(responseBody, &responseData)
+		if err != nil {
+			return fmt.Errorf("can't decode response: %w", err)
+		}
+		return responseData
+	default:
+		return ErrUnknown
+	}
+}
+
+func (c *Client) UpdateAvatar(ctx context.Context, id int, urlAvatar string, formRequest *http.Request) (err error) {
+	cookie, err := formRequest.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			return err
+		}
+		return err
+	}
+
+	var reqUpdatePass userIdAvatar
+	reqUpdatePass.Id = int64(id)
+	reqUpdatePass.AvatarUrl = urlAvatar
+	bodyReq, err := json.Marshal(reqUpdatePass)
+	if err != nil {
+		return err
+	}
+
+	requestUpdatePass, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		fmt.Sprintf("%s/api/users/%d/edit/avatar", c.url, id),
 		bytes.NewBuffer(bodyReq),
 	)
 	if err != nil {
